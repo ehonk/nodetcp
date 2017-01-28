@@ -1,108 +1,116 @@
 //var jsonparams = require('./jsonParams');
 var fs = require('fs');
-var paramsfile = __dirname + '/data/params.txt';
-var parameters = new Object();
-var measValues = [];
-parameters = JSON.parse(fs.readFileSync(paramsfile).toString());
+
 
 var objTCPSocket = new Object();
-var TCPListner = require('socket.io').listen(20001,{'log colors':false, 'log level':1});
+var TCPListner = require('socket.io').listen(20001, { 'log colors': false, 'log level': 1 });
 var tcpclients = [];
 var sockets = [];
 var net = require('net');
-objTCPSocket.Host="127.0.0.1";
-objTCPSocket.Port="20000";
+objTCPSocket.Host = "127.0.0.1";
+objTCPSocket.Port = "5000";
+
+var globalclient;
 
 consolemenu();
+keystrokehandler();
 
 
-//var readline = require('readline');
-//
-//var rl = readline.createInterface({
-//  input: process.stdin,
-//  output: process.stdout,
-//  terminal: true
-//});
-//
-//rl.on('line', function (cmd) {
-//  console.log('You just typed: '+cmd);
-//});
-
-initMeasValues();
-
-process.stdin.resume();
-process.stdin.setEncoding('utf8');
-
-process.stdin.on('data', function (chunk) {
-// process.stdout.write('data: ' + chunk);
-     if (chunk==1){
-         console.log("getStatusFromFlowmeter: " + chunk);
-         getStatusFromFlowmeter();
-
-     }
-
-     if (chunk==2){
-    	 console.log("getAllMeasurementsFromFlowmeter: " + chunk);
-         getAllMeasurementsFromFlowmeter();
-     }
-
-     if (chunk==3){
-         console.log("Q-Eye Radar: " + chunk);
 
 
-     }
+function consolemenu() {
 
-     if (chunk==4){
-         console.log("ReVision: " + chunk);
-
-
-     }
-
-     if (chunk==5){
-         console.log("Kanalis TT: " + chunk);
-//         generateParams("Kanalis TT");
-
-     }
-
-     if (chunk==6){
-         console.log("Q-Eye PCP: " + chunk);
-//         generateParams("Q-Eye PCP");
-
-     }
-
-
-});
-
-
-function consolemenu(){
 	console.log("###########################################");
-	console.log("# WebUI/FLowmeter Console Interface                        ");
-	console.log("# 1. Status ");
-	console.log("# 2. All measurement values ");
-	console.log("# 3. send TCP Messages ");
+	console.log("# TCP Socket Tester                       ");
+	console.log("# 1. TCP bisher ");
+	console.log("# 	");
+	console.log("# 2. Open TCP ");
+	console.log("# 3. Start Communication ");
+	console.log("# 4. Close TCP ");
+	console.log("# 	");
+	console.log("# Getrennte Funktionen");
+	console.log("# 5. Open TCP ");
+	console.log("# 6. connect TCP ");
+	console.log("# 7. Write & Read TCP ");
+	console.log("# 8. Close TCP ");
+	console.log("# 	");	
+	console.log("# 	");	
+	console.log("# 	");	
+	console.log("# 	");									
 	console.log("###########################################");
 }
 
-function getStatusFromFlowmeter(){
 
-	var tcpmessage="{\"REQUEST\":\"STATUS\"}";
-	var tcp_client = net.connect({port:objTCPSocket.Port}, function(){
+
+function keystrokehandler() {
+
+	process.stdin.resume();
+	process.stdin.setEncoding('utf8');
+
+	process.stdin.on('data', function (chunk) {
+
+		var eingabe = chunk;
+		eingabe = eingabe.replace(/\n|\r/g, "");
+
+		switch (eingabe) {
+			case "0":
+				getFileInformation();
+				break;
+
+			case "1":
+				oldTCPHandler();
+				break;
+
+			case "2":
+				TCP_OpenSocket();
+				break;
+
+			case "3":
+				TCP_Communication();
+				break;
+			case "4":
+				TCP_CloseSocket();
+				break;
+
+			case "5":
+				TCP_OpenSocket();
+				break;
+			case "6":
+				TCP_Connect();
+				break;
+			case "7":
+				TCP_write();
+				break;
+			case "8":
+				TCP_CloseSocket();
+				break;
+
+			default:
+				console.log(" switch default");
+		}
+	});
+}
+
+function getStatusFromFlowmeter() {
+
+	var tcpmessage = "{\"REQUEST\":\"STATUS\"}";
+	var tcp_client = net.connect({ port: objTCPSocket.Port }, function () {
 		tcp_client.write(tcpmessage);
-//		console.log("STATUS -> " + tcpmessage);
-		console.log ("< Info > [TCP] tcptoflowmeter::TCP_Status | REQUEST: " + tcpmessage);
+		//		console.log("STATUS -> " + tcpmessage);
+		console.log("< Info > [TCP] tcptoflowmeter::TCP_Status | REQUEST: " + tcpmessage);
 	});
 
-	tcp_client.on('data', function(data){
-		console.log ("< Info > [TCP] tcptoflowmeter::TCP_Status | Incoming Status: " + data.toString());
+	tcp_client.on('data', function (data) {
+		console.log("< Info > [TCP] tcptoflowmeter::TCP_Status | Incoming Status: " + data.toString());
 		tcp_client.end();
 
 		consolemenu();
 	});
 
-	tcp_client.on('error', function(error) {
+	tcp_client.on('error', function (error) {
 
 		//filemgr.appendtofile(log_file, "ERROR TCP :" + NowDate + ": " + error.toString() + '\n');
-		console.log ("< Error > [TCP] tcptoflowmeter::TCP_Status | error: " + error.toString());
+		console.log("< Error > [TCP] tcptoflowmeter::TCP_Status | error: " + error.toString());
 		tcp_client.destroy();
 
 	});
@@ -110,212 +118,116 @@ function getStatusFromFlowmeter(){
 
 }
 
-function getAllMeasurementsFromFlowmeter(){
 
-	var outData = [];
+function oldTCPHandler() {
 
-	console.log ("Start TCP Communication"  );
-	strMsg = '';
-	if(measValues.length > 1){
-		client = new net.Socket();
-		currID = 1;
+	console.log("Start oldTCPHandler");
+	var strMsg = 'Hello';
 
-		client.setTimeout(60000, function(){
-			console.log({ data: "TimeOut: " + objTCPSocket.Host + ":"+ objTCPSocket.Port});
-			client.destroy();
-		});
+	client = new net.Socket();
 
-		client.connect(objTCPSocket.Port, objTCPSocket.Host, function(){
-			client.write('{"REQUEST":"'+ measValues[currID] + '"}');
-			console.log ("< Info > [TCP] client_connect TCP_RequestValue " + measValues[currID]);
-		});
+	client.setTimeout(60000, function () {
+		console.log({ data: "TimeOut: " + objTCPSocket.Host + ":" + objTCPSocket.Port });
+		client.destroy();
+	});
 
-		client.on('data', function(data) {
-			outData.push(createMeasValueObj( JSON.parse(data)  ));
+	client.connect(objTCPSocket.Port, objTCPSocket.Host, function () {
+		client.write(strMsg);
+		console.log("< Info > [TCP] client_connect | Sending " + strMsg);
+	});
 
-			currID++;
-			if(currID < measValues.length){
-				client.write('{"REQUEST":"'+ measValues[currID] + '"}');
-//				console.log ("< Info > [TCP] Request: " + measValues[currID]);
-			}
-			else{
+	client.on('data', function (data) {
+		console.log("< Info > [TCP] client_connect | Receiving: " + data.toString());
+		client.end();
+	});
 
-				client.destroy();
-			}
-		});
+	client.on('close', function () {
+		console.log('Connection closed');
+	});
 
-		client.on('close', function() {
-			//console.log('Connection closed');
-			consolemenu();
-		});
+	client.on('error', function (error) {
+		console.log('Connection error');
+	});
 
-		client.on('error', function(error) {
+}
 
-		});
-	} else {
-		console.log("# ERROR tcptoflowmeter::TCP_Requestvalue | measValues.length == 0: ");
-	}
+function TCP_OpenSocket() {
+
+	console.log("Start TCP_OpenSocket globalclient: " + globalclient);
+	console.log("Start TCP_OpenSocket");
+	globalclient = new net.Socket();
+	console.log("Start TCP_OpenSocket globalclient: " + globalclient);
+
+}
+
+function TCP_Communication() {
+
+	console.log(" TCP_Communication");
+	console.log(" TCP_Communication globalclient: " + globalclient);
+	var strMsg = 'Hello';
+
+	globalclient.connect(objTCPSocket.Port, objTCPSocket.Host, function () {
+		globalclient.write(strMsg);
+		console.log("< Info > [TCP] client_connect | Sending " + strMsg);
+	});
+
+	globalclient.on('data', function (data) {
+		console.log("< Info > [TCP] client_connect | Receiving: " + data.toString());
+		globalclient.end();
+	});
+
+	globalclient.on('error', function (error) {
+		console.log('Connection error: ' + error);
+	});
 
 
 }
 
-function initMeasValues(){
+function TCP_Connect() {
+	console.log("TCP_Connect");
 
-	console.log ("# tcptoflowmeter::initMeasValues Measuremnt Values ?");
-
-	var input = __dirname + '/public/data/data.csv';
-	var fsread = fs.createReadStream(input, {start: 0, end: 4096});
-	var line='';
-	var first = false;
-
-	fsread.on('readable',function(){
-		if(!first){
-			line += fsread.read();
-			if(line.indexOf('\n') > 0){
-				var larr = line.split('\n');
-				console.log(larr[0]);
-				measValues = larr[0].split(',');
-				first = true;
-			}
-		}
-
-	})
-
-};
-
-function createMeasValueObj(tempObj){
-
-	var propsOfObj = Object.keys(tempObj);
-	var mvName = propsOfObj[0];
-	var org_name = mvName;
-
-	var cutidx = mvName.lastIndexOf('_');
-	if(cutidx > 0){
-		mvName = mvName.substring(0, cutidx);
-	}
-
-	// Dynamically BaseUnit
-	var dynamicBaseUnit=getBaseUnitDynamic(mvName);
-
-
-	var conversion = 1;
-	var displayUnit = "";
-	var SIUnit = "";
-
-	if(dynamicBaseUnit != null){
-
-		var unitConversionObj = findlevel1("MeasurementUnits");
-		var unitDisplayObj = findlevel1("UnitDisplay");
-		var uDisplay = unitDisplayObj[dynamicBaseUnit];
-
-		var aConversionObj = unitConversionObj[dynamicBaseUnit];
-
-		if (aConversionObj!=undefined){
-		    SIUnit = aConversionObj.Base;
-		    displayUnit=uDisplay;
-
-		    if(aConversionObj.Base != uDisplay){
-			conversion = aConversionObj[uDisplay];
-			displayUnit=uDisplay;
-		    }
-
-
-		} else {
-
-
-		}
-
-	}
-
-	console.log ("# Name: " + propsOfObj[0] + " \t | value: " + tempObj[propsOfObj[0]] + " \t | baseUnit: " + dynamicBaseUnit ) ;
-
-	var retObj = {name:propsOfObj[0], value:tempObj[propsOfObj[0]],baseUnits:dynamicBaseUnit, conversion:conversion, displayUnit:displayUnit, SIUnit:SIUnit };
-	return retObj;
-
+	globalclient.connect(objTCPSocket.Port, objTCPSocket.Host, function () {
+		console.log("< Info > [TCP] client_connect | Sending " );
+	});
 
 }
 
-function getBaseUnitDynamic(Value) {
+function TCP_write() {
+	var strMsg = 'Hello';
 
-    var found;
-    var vBaseUnitName=null;
-    found = parameters["MeasurementValues"];
+	//globalclient.emit('some event', { for: 'everyone' });
 
-    for(var BaseUnits in found){
+if (globalclient!= undefined){
+console.log(" globalclient is defined: " + globalclient);
+	globalclient.write(strMsg, function () {
+		console.log(" TCP_write: " + strMsg);
 
-	    var foundstring=found[BaseUnits];
-
-	    for(var cells in foundstring){
-		if (Value===foundstring[cells])
-		    vBaseUnitName=BaseUnits;
-	    }
-
+		globalclient.on('data', function (data) {
+			console.log("< Info > [TCP] client_connect | Receiving: " + data.toString());
+			
+		});
+	});
+} else {
+	console.log(" globalclient is undefined: " + globalclient);
 	}
 
+	/*	globalclient.on('data', function (data) {
+			console.log("< Info > [TCP] client_connect | Receiving: " + data.toString());
+			globalclient.end();
+		});*/
 
-
-
-
-    return vBaseUnitName;
 }
 
-function findlevel1(paramname)
-{
-  //parameters = JSON.parse(fs.readFileSync(paramsfile).toString());
-  var found;
+function TCP_CloseSocket() {
+	console.log("Close TCP_CloseSocket");
 
-  found = parameters[paramname];
-  return found;
+	globalclient.on('close', function () {
+		console.log('Connection closed');
+		process.exit();
+	});
+
 }
 
-/*
-function TCP_RequestValue(req, res){
-	var strData = req.body.strData;
-	var NowDate = new Date();
-	var outData = [];
 
-	strMsg = '';
-	if(measValues.length > 1){
-		client = new net.Socket();
-		currID = 1;
 
-		client.setTimeout(60000, function(){
-			res.contentType('json');
-			//res.send({ data: "TimeOUTTTT: " + objTCPSocket.Host + ":"+ objTCPSocket.Port, unitDisplay: JSON.stringify(dataUnitDisplay), measurementUnits: JSON.stringify(dataMeasurementUnits)   });
-			res.send({ data: "TimeOut: " + objTCPSocket.Host + ":"+ objTCPSocket.Port});
-			client.destroy();
-		});
 
-		client.connect(objTCPSocket.Port, objTCPSocket.Host, function(){
-			client.write('{"REQUEST":"'+ measValues[currID] + '"}');
-			console.log ("< Info > [TCP] client_connect TCP_RequestValue " + measValues[currID]);
-		});
-
-		client.on('data', function(data) {
-			outData.push(servercode.createMeasValueObj( JSON.parse(data)  ));
-
-			currID++;
-			if(currID < measValues.length){
-				client.write('{"REQUEST":"'+ measValues[currID] + '"}');
-				console.log ("< Info > [TCP] Request: " + measValues[currID]);
-			}
-			else{
-			    res.contentType('json');
-				res.send({ data: outData });
-				client.destroy();
-			}
-		});
-
-		client.on('close', function() {
-			//console.log('Connection closed');
-		});
-
-		client.on('error', function(error) {
-			res.contentType('json');
-			res.send({ data: JSON.stringify(error)});
-		});
-	} else {
-		console.log("# ERROR tcptoflowmeter::TCP_Requestvalue | measValues.length == 0: ");
-	}
-};
-*/
