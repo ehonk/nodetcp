@@ -33,10 +33,10 @@ function consolemenu() {
 	console.log("# 6. connect TCP ");
 	console.log("# 7. Write & Read TCP ");
 	console.log("# 8. Close TCP ");
-	console.log("# 	");	
-	console.log("# 	");	
-	console.log("# 	");	
-	console.log("# 	");									
+	console.log("# 	");
+	console.log("# 	");
+	console.log("# 	");
+	console.log("# 	");
 	console.log("###########################################");
 }
 
@@ -151,14 +151,7 @@ function oldTCPHandler() {
 
 }
 
-function TCP_OpenSocket() {
 
-	console.log("Start TCP_OpenSocket globalclient: " + globalclient);
-	console.log("Start TCP_OpenSocket");
-	globalclient = new net.Socket();
-	console.log("Start TCP_OpenSocket globalclient: " + globalclient);
-
-}
 
 function TCP_Communication() {
 
@@ -183,11 +176,27 @@ function TCP_Communication() {
 
 }
 
+function TCP_OpenSocket() {
+
+	console.log("Start TCP_OpenSocket globalclient: " + globalclient);
+	console.log("Start TCP_OpenSocket");
+	if (globalclient != undefined) {
+		globalclient = new net.Socket();
+		console.log("Start TCP_OpenSocket globalclient: " + globalclient);
+	} else {
+		console.log("Socket bereits erstellt");
+	}
+}
+
 function TCP_Connect() {
 	console.log("TCP_Connect");
 
 	globalclient.connect(objTCPSocket.Port, objTCPSocket.Host, function () {
-		console.log("< Info > [TCP] client_connect | Sending " );
+		console.log("< Info > [TCP] client_connect | Sending ");
+	});
+
+	globalclient.on('error', function (error) {
+		console.log('Connection error: ' + error);
 	});
 
 }
@@ -197,18 +206,18 @@ function TCP_write() {
 
 	//globalclient.emit('some event', { for: 'everyone' });
 
-if (globalclient!= undefined){
-console.log(" globalclient is defined: " + globalclient);
-	globalclient.write(strMsg, function () {
-		console.log(" TCP_write: " + strMsg);
+	if (globalclient != undefined) {
+		console.log(" globalclient is defined: " + globalclient);
+		globalclient.write(strMsg, function () {
+			console.log(" TCP_write: " + strMsg);
 
-		globalclient.on('data', function (data) {
-			console.log("< Info > [TCP] client_connect | Receiving: " + data.toString());
-			
+			globalclient.on('data', function (data) {
+				console.log("< Info > [TCP] client_connect | Receiving: " + data.toString());
+
+			});
 		});
-	});
-} else {
-	console.log(" globalclient is undefined: " + globalclient);
+	} else {
+		console.log(" globalclient is undefined: " + globalclient);
 	}
 
 	/*	globalclient.on('data', function (data) {
