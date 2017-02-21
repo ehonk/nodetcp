@@ -34,7 +34,7 @@ function consolemenu() {
 	console.log("# 7. Write & Read TCP ");
 	console.log("# 8. Close TCP ");
 	console.log("# 	");
-	console.log("# 	");
+	console.log("# 9. combined functions");
 	console.log("# 	");
 	console.log("# 	");
 	console.log("###########################################");
@@ -84,7 +84,10 @@ function keystrokehandler() {
 			case "8":
 				TCP_CloseSocket();
 				break;
-
+			case "9":
+				TCP_IntelliWrite("Hello");
+				break;
+				
 			default:
 				console.log(" switch default");
 		}
@@ -178,11 +181,12 @@ function TCP_Communication() {
 
 function TCP_OpenSocket() {
 
-	console.log("Start TCP_OpenSocket globalclient: " + globalclient);
-	console.log("Start TCP_OpenSocket");
-	if (globalclient != undefined) {
+	console.log("TCP_OpenSocket::Start globalclient: " + globalclient);
+	
+	if (globalclient == undefined) {
 		globalclient = new net.Socket();
-		console.log("Start TCP_OpenSocket globalclient: " + globalclient);
+		console.log("TCP_OpenSocket::new Socket globalclient: " + globalclient);
+//		console.log(Object.getOwnPropertyNames(globalclient)); 
 	} else {
 		console.log("Socket bereits erstellt");
 	}
@@ -192,11 +196,11 @@ function TCP_Connect() {
 	console.log("TCP_Connect");
 
 	globalclient.connect(objTCPSocket.Port, objTCPSocket.Host, function () {
-		console.log("< Info > [TCP] client_connect | Sending ");
+		console.log("< Info > [TCP] TCP_Connect::client_connect ");
 	});
 
 	globalclient.on('error', function (error) {
-		console.log('Connection error: ' + error);
+		console.log("< Info > [TCP] TCP_Connect::Connection error: " + error);
 	});
 
 }
@@ -209,34 +213,29 @@ function TCP_write() {
 	if (globalclient != undefined) {
 		console.log(" globalclient is defined: " + globalclient);
 		globalclient.write(strMsg, function () {
-			console.log(" TCP_write: " + strMsg);
-
+			console.log("< Info > [TCP] TCP_write::write | Sending: " + strMsg);
 			globalclient.on('data', function (data) {
-				console.log("< Info > [TCP] client_connect | Receiving: " + data.toString());
-
+				console.log("< Info > [TCP] TCP_write::on | Receiving: " + data.toString());
 			});
 		});
 	} else {
 		console.log(" globalclient is undefined: " + globalclient);
 	}
 
-	/*	globalclient.on('data', function (data) {
-			console.log("< Info > [TCP] client_connect | Receiving: " + data.toString());
-			globalclient.end();
-		});*/
-
 }
 
 function TCP_CloseSocket() {
-	console.log("Close TCP_CloseSocket");
+//	console.log("Close TCP_CloseSocket");
 
 	globalclient.on('close', function () {
-		console.log('Connection closed');
+		console.log("< Info > [TCP] TCP_CloseSocket::on_close ");
 		process.exit();
 	});
 
 }
 
-
+function TCP_IntelliWrite(strmsg) {
+	
+}
 
 
