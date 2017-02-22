@@ -5,6 +5,8 @@ from thread import *
 HOST = ''   # Symbolic name meaning all available interfaces
 PORT = 5000
 
+# my homework today
+
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 print 'Socket created'
 
