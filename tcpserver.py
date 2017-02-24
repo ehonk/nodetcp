@@ -3,9 +3,7 @@ import sys
 from thread import *
 
 HOST = ''   # Symbolic name meaning all available interfaces
-PORT = 5000
-
-# my homework today
+PORT = 5005
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 print 'Socket created'
@@ -17,9 +15,15 @@ except socket.error , msg:
     sys.exit()
 
 print 'Socket bind complete'
-
 s.listen(10)
 print 'Socket now listening'
+
+def answer(message):
+    reply = "Unknown Question"
+    if message == "FTP!":
+        reply = 'FTP!:'
+    return reply
+
 
 #Function for handling connections
 def clientthread(conn):
@@ -31,8 +35,9 @@ def clientthread(conn):
 
         #Receiving from client
         data = conn.recv(1024)
-        reply = 'Message Received at the server: ' + data
-        print data
+        reply = answer(data)
+        print "Py-Server < " + data
+        print "Py-Server > " + reply
         if not data:
             break
 

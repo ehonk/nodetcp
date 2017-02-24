@@ -8,7 +8,7 @@ var tcpclients = [];
 var sockets = [];
 var net = require('net');
 objTCPSocket.Host = "127.0.0.1";
-objTCPSocket.Port = "5000";
+objTCPSocket.Port = "5005";
 
 var globalclient;
 
@@ -37,6 +37,8 @@ function consolemenu() {
 	console.log("# 9. combined functions");
 	console.log("# 	");
 	console.log("# 	");
+	console.log("# 20. send FTP!");
+	console.log("# 	");	
 	console.log("###########################################");
 }
 
@@ -79,7 +81,7 @@ function keystrokehandler() {
 				TCP_Connect();
 				break;
 			case "7":
-				TCP_write();
+				TCP_write("HELLO");
 				break;
 			case "8":
 				TCP_CloseSocket();
@@ -87,7 +89,9 @@ function keystrokehandler() {
 			case "9":
 				TCP_IntelliWrite("Hello");
 				break;
-				
+			case "20":
+				TCP_write("FTP!");
+				break;
 			default:
 				console.log(" switch default");
 		}
@@ -205,8 +209,8 @@ function TCP_Connect() {
 
 }
 
-function TCP_write() {
-	var strMsg = 'Hello';
+function TCP_write(strMsg) {
+
 
 	//globalclient.emit('some event', { for: 'everyone' });
 
