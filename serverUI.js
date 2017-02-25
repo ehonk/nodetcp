@@ -15,6 +15,23 @@ var net = require('net');
 simpleServer();
 
 
+function selectAnswer(str) {
+
+	var answer;
+	switch(str) {
+		case "FTP!":
+			answer="FTP!";
+			break;
+		case "GSM!":
+			answer="GSM!";
+			break;
+		default:
+			answer="unknown Question!";
+	}
+return answer;
+}
+
+
 function simpleServer() {
 
 var textChunk = '';
@@ -27,7 +44,7 @@ var textChunk = '';
 		// Handle incoming messages from clients.
 		socket.on('data', function(data){
 			console.log(" nodeTCP < " + data);
-			textChunk = data.toString('utf8');
+			textChunk = selectAnswer(data.toString('utf8'));
 			console.log(" nodeTCP > " + textChunk);
 			socket.write(textChunk);
 		});
@@ -40,6 +57,6 @@ var textChunk = '';
 
 	});
 
-server.listen(5010, '127.0.0.1');
+server.listen(5005, '127.0.0.1');
 }
 
