@@ -14,6 +14,9 @@ var net = require('net');
 
 simpleServer();
 
+function selectAnswer(tcpquest){
+
+
 
 function selectAnswer(str) {
 
@@ -24,6 +27,12 @@ function selectAnswer(str) {
 			break;
 		case "GSM!":
 			answer="GSM!";
+			break;
+		case "GEOMETRY!":
+			sAnwser="GEOMETRY!"
+			break;
+		case "{\"Request\": \"Q\"}":
+			sAnwser="{\"Q\":0.331}!"
 			break;
 		default:
 			answer="unknown Question!";
