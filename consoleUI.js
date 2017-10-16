@@ -8,7 +8,11 @@ var tcpclients = [];
 var sockets = [];
 var net = require('net');
 objTCPSocket.Host = "127.0.0.1";
-objTCPSocket.Port = "5005";
+//objTCPSocket.Port = "5005";
+objTCPSocket.Port = "20001";
+
+//var objTCPSocket = new Object();
+//var TCPListner = require('socket.io').listen(20001,{'log colors':false, 'log level':1});
 
 var globalclient;
 
@@ -22,7 +26,9 @@ function consolemenu() {
 
 	console.log("###########################################");
 	console.log("# TCP Socket Tester                       ");
-	console.log("# 1. TCP bisher ");
+	console.log("# 1. TCP to Flowmeter JSON bisher ");
+	console.log("# 11. Request Status ");
+	console.log("# 15. Stress Test ");
 	console.log("# 	");
 	console.log("# 2. Open TCP ");
 	console.log("# 3. Start Communication ");
@@ -55,13 +61,16 @@ function keystrokehandler() {
 		eingabe = eingabe.replace(/\n|\r/g, "");
 
 		switch (eingabe) {
-			case "0":
-				getFileInformation();
-				break;
+
 
 			case "1":
 				oldTCPHandler();
 				break;
+
+				case "11":
+				var tcpmessage = JSON.stringify({REQUEST: "STATUS"});
+				sendTCP_jsonmsg_beautifier(tcpmessage);
+				break;				
 
 			case "2":
 				TCP_OpenSocket();
@@ -98,6 +107,118 @@ function keystrokehandler() {
 	});
 }
 
+ 
+function sendTCP_jsonmsg_switcher(tcpmessage){
+	
+		  var tcp_client = net.connect({port:objTCPSocket.Port}, function(){
+			tcp_client.write(tcpmessage);
+			console.log ("[TCP] tcptoflowmeter::TCP_Status | tcpmessage: " + tcpmessage);
+		  });
+	
+		  tcp_client.on('data', function(data){
+			json_requestswitcher(data.toString());
+			tcp_client.end();
+		  });
+	
+		  tcp_client.on('error', function(error) {
+			console.log ("< Error > [TCP] tcptoflowmeter::TCP_Status | error: " + error.toString());
+			tcp_client.destroy();
+	
+		  });
+	
+	}
+	function sendTCP_jsonmsg_beautifier(tcpmessage){
+	
+		  var tcp_client = net.connect({port:objTCPSocket.Port}, function(){
+			tcp_client.write(tcpmessage);
+			console.log ("[TCP] tcptoflowmeter::TCP_Status | tcpmessage: " + tcpmessage);
+		  });
+	
+		  tcp_client.on('data', function(data){
+			  json_beautifier(data.toString());
+			tcp_client.end();
+	
+		  });
+	
+		  tcp_client.on('error', function(error) {
+			console.log ("< Error > [TCP] tcptoflowmeter::TCP_Status | error: " + error.toString());
+			tcp_client.destroy();
+	
+		  });
+	
+	}
+	
+	
+	function json_requestswitcher(jsonstr){
+		
+		console.log ("[TCP] json_requestswitcher |  Incoming : " + jsonstr);
+		
+		var jsonObj = new Object();
+		jsonObj = JSON.parse(jsonstr.replace(/\binf\b/g, "null"));
+		
+	
+		
+		if ( jsonObj['RESPONSE'] ){
+			
+			// Neue Struktur Response
+			
+			switch (jsonObj['RESPONSE']) {
+			
+				case "ERRORS":
+					json_errorts(jsonstr);
+					break;
+				case "FLUSHBUFFER":
+					json_tree(jsonstr);
+					break;	
+				case "RTD":
+					json_beautifier(jsonstr);
+					break;				
+				case "AO":
+				case "AI":
+				case "DO":
+					json_tree(jsonstr);
+					break;	
+			}
+			
+		} else {
+			
+			// Alte Struktur Key
+			for (var key in jsonObj) {
+				
+				  switch (key) {
+				  
+				  case "STATUS":
+					  console.log ( key + " :" + jsonObj[key] );
+					  json_statusmsgs(jsonObj[key]);
+					  break;
+					  
+				  case "ERRORS":
+					  console.log ( key + " :" + jsonObj[key] );
+					  json_beautifier(jsonObj[key]);
+					  break;			  
+				  }
+				 
+		}
+		
+	 
+		}
+	}
+	function json_beautifier(jsonstr){
+		
+	//	console.log ("[TCP] jsonbeautifier |  Incoming : " + jsonstr);
+	//	var jsondata = JSON.parse(data.data.replace(/\binf\b/g, "null"));
+		var jsonObj = new Object();
+		jsonObj = JSON.parse(jsonstr.replace(/\binf\b/g, "null") );
+	
+		for (var key in jsonObj) {
+			if (typeof jsonObj[key] === 'object')
+				console.log ("key: " + key + " | Eleminate: " + jsonObj[key]["Eliminate"] + " | Vappr: " + jsonObj[key]["Vappr"] + " | Pos: " + jsonObj[key]["position"]  );
+			else 
+				console.log ( key + " :" + jsonObj[key] );
+		}
+	}
+
+
 function getStatusFromFlowmeter() {
 
 	var tcpmessage = "{\"REQUEST\":\"STATUS\"}";
@@ -129,7 +250,7 @@ function getStatusFromFlowmeter() {
 function oldTCPHandler() {
 
 	console.log("Start oldTCPHandler");
-	var strMsg = 'Hello';
+	var strMsg = 'FTP!';
 
 	client = new net.Socket();
 
