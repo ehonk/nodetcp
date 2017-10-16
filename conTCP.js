@@ -1,9 +1,9 @@
 //var jsonparams = require('./jsonParams');
-var fs = require('fs');
+
 var paramsfile = __dirname + '/data/params.txt';
 var parameters = new Object();
 var measValues = [];
-parameters = JSON.parse(fs.readFileSync(paramsfile).toString());
+
 
 var objTCPSocket = new Object();
 var TCPListner = require('socket.io').listen(20001,{'log colors':false, 'log level':1});
@@ -13,7 +13,7 @@ var net = require('net');
 objTCPSocket.Host="127.0.0.1";
 objTCPSocket.Port="20000";
 
-initMeasValues();
+
 
 consolemenu();
 
@@ -235,29 +235,6 @@ function getAllMeasurementsFromFlowmeter(){
 
 }
 
-function initMeasValues(){
-
-	console.log ("# tcptoflowmeter::initMeasValues Measuremnt Values ?");
-
-	var input = __dirname + '/public/data/data.csv';
-	var fsread = fs.createReadStream(input, {start: 0, end: 4096});
-	var line='';
-	var first = false;
-
-	fsread.on('readable',function(){
-		if(!first){
-			line += fsread.read();
-			if(line.indexOf('\n') > 0){
-				var larr = line.split('\n');
-				console.log(larr[0]);
-				measValues = larr[0].split(',');
-				first = true;
-			}
-		}
-
-	})
-
-};
 
 function createMeasValueObj(tempObj){
 
