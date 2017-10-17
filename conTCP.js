@@ -16,98 +16,101 @@ objTCPSocket.Port="20000";
 
 
 consolemenu();
-
-//var readline = require('readline');
-//
-//var rl = readline.createInterface({
-//  input: process.stdin,
-//  output: process.stdout,
-//  terminal: true
-//});
-//
-//rl.on('line', function (cmd) {
-//  console.log('You just typed: '+cmd);
-//});
-
-
-
-process.stdin.resume();
-process.stdin.setEncoding('utf8');
-
-process.stdin.on('data', function (chunk) {
-// process.stdout.write('data: ' + chunk);
-
-	var eingabe = chunk;
-	eingabe = eingabe.replace(/\n|\r/g, "");
-
-	switch (eingabe) {
-	case "1":
-        console.log("getStatusFromFlowmeter: " + chunk);
-        getStatusFromFlowmeter();
-		break;
-
-	case "2":
-		console.log("getAllMeasurementsFromFlowmeter: " + chunk);
-		getAllMeasurementsFromFlowmeter();
-		break;
-
-	case "3":
-   	 	sendTCP_Text_Message("GEOMETRY!");
-   	 	console.log("send GEOMETRY!: " + chunk);
-		break;
-
-	case "4":
-   	 	var tcpmessage = JSON.stringify({REQUEST: "AO"});
-   	 	sendTCP_JSON_Message(tcpmessage);
-		break;
-
-	case "5":
-   	 	var tcpmessage = JSON.stringify({REQUEST: "DOTESTACTIVE?" , "CHANNEL": 1 });
-   	 	sendTCP_JSON_Message(tcpmessage);
-		break;
-
-	case "6":
-   	 	var tcpmessage = JSON.stringify({REQUEST: "DOTESTACTIVE?" , "CHANNEL": 5 });
-   	 	sendTCP_JSON_Message(tcpmessage);
-		break;
-
-
-
-	default:
-		console.log (" switch default");
-	}
-
-
-});
-
+keystrokehandler();
 
 function consolemenu(){
 	console.log("###########################################");
 	console.log("# WebUI/FLowmeter Console Interface                        ");
 	console.log("# 1. Status ");
-	console.log("# 2. All measurement values ");
-	console.log("# 3. send GEOMETRY! ");
-	console.log("# 4. Request Analog In mA Values ");
+	console.log("# 2. ERRORS switcher ");
+	console.log("# 3. VERSION beautifier ");
+	console.log("# 16. Stresstest 1000ms ");
+	console.log("# 17. Stresstest 500ms ");
+	console.log("# 18. Stresstest 100ms ");
+	console.log("# 19. Stresstest 10ms ");
 	console.log("# 	");
-
-	console.log("# 2. Open TCP ");
-	console.log("# 3. Start Communication ");
-	console.log("# 4. Close TCP ");
-	console.log("# 	");
-	console.log("# Getrennte Funktionen");
+	console.log("# ----------------------------	");
+	console.log("# getrennte Funktionen");
 	console.log("# 5. Open TCP ");
 	console.log("# 6. connect TCP ");
 	console.log("# 7. Write & Read TCP ");
 	console.log("# 8. Close TCP ");
 	console.log("# 	");
 	console.log("# 9. combined functions");
-	console.log("# 	");
-	console.log("# 	");
-	console.log("# 20. send FTP!");
-	console.log("# 	");	
+	console.log("# 21. Stresstest 1000ms ");
+	console.log("# 22. Stresstest 500ms ");
+	console.log("# 23. Stresstest 100ms ");
+	console.log("# 24. Stresstest 10ms ");
 	console.log("###########################################");
 }
 
+function keystrokehandler() {
+	
+	process.stdin.resume();
+	process.stdin.setEncoding('utf8');
+	
+	process.stdin.on('data', function (chunk) {
+	// process.stdout.write('data: ' + chunk);
+	
+		var eingabe = chunk;
+		eingabe = eingabe.replace(/\n|\r/g, "");
+	
+		switch (eingabe) {
+		case "1":
+			var tcpmessage = JSON.stringify({REQUEST: "STATUS"});
+			sendTCP_JSON_Message(tcpmessage);
+			break;
+	
+		case "2":
+			var tcpmessage = JSON.stringify({REQUEST: "ERRORS"});
+			sendTCP_jsonmsg_switcher(tcpmessage);
+		break;
+		
+		case "3":
+			var tcpmessage = JSON.stringify({REQUEST: "VERSION"});
+			sendTCP_jsonmsg_beautifier(tcpmessage);
+		break;
+
+		case "2":
+			console.log("getAllMeasurementsFromFlowmeter: " + chunk);
+			getAllMeasurementsFromFlowmeter();
+			break;
+	
+		case "3":
+				sendTCP_Text_Message("GEOMETRY!");
+				console.log("send GEOMETRY!: " + chunk);
+			break;
+	
+		case "4":
+				var tcpmessage = JSON.stringify({REQUEST: "AO"});
+				sendTCP_JSON_Message(tcpmessage);
+			break;
+	
+		case "5":
+				var tcpmessage = JSON.stringify({REQUEST: "DOTESTACTIVE?" , "CHANNEL": 1 });
+				sendTCP_JSON_Message(tcpmessage);
+			break;
+	
+		case "6":
+				var tcpmessage = JSON.stringify({REQUEST: "DOTESTACTIVE?" , "CHANNEL": 5 });
+				sendTCP_JSON_Message(tcpmessage);
+			break;
+	
+	
+	
+		default:
+			console.log (" switch default");
+		}
+	
+	
+	});
+	
+	}
+
+function ____neue_Funktionen______(){}
+
+function ____alte_Funktionen______(){}
+	
 function getStatusFromFlowmeter(){
 
 	var tcpmessage="{\"REQUEST\":\"STATUS\"}";
@@ -186,6 +189,154 @@ function sendTCP_JSON_Message(tcpmessage){
 	});
 
 }
+
+function sendTCP_jsonmsg_beautifier(tcpmessage){
+	
+		  var tcp_client = net.connect({port:objTCPSocket.Port}, function(){
+			tcp_client.write(tcpmessage);
+			console.log ("[TCP] tcptoflowmeter::TCP_Status | tcpmessage: " + tcpmessage);
+		  });
+	
+		  tcp_client.on('data', function(data){
+			  json_beautifier(data.toString());
+			tcp_client.end();
+	
+		  });
+	
+		  tcp_client.on('error', function(error) {
+			console.log ("< Error > [TCP] tcptoflowmeter::TCP_Status | error: " + error.toString());
+			tcp_client.destroy();
+	
+		  });
+	
+	}
+
+	function sendTCP_jsonmsg_switcher(tcpmessage){
+		
+			  var tcp_client = net.connect({port:objTCPSocket.Port}, function(){
+				tcp_client.write(tcpmessage);
+				console.log ("[TCP] tcptoflowmeter::TCP_Status | tcpmessage: " + tcpmessage);
+			  });
+		
+			  tcp_client.on('data', function(data){
+				json_requestswitcher(data.toString());
+				tcp_client.end();
+			  });
+		
+			  tcp_client.on('error', function(error) {
+				console.log ("< Error > [TCP] tcptoflowmeter::TCP_Status | error: " + error.toString());
+				tcp_client.destroy();
+		
+			  });
+		
+		}
+
+		function json_requestswitcher(jsonstr){
+			
+			console.log ("[TCP] json_requestswitcher |  Incoming : " + jsonstr);
+			
+			var jsonObj = new Object();
+			jsonObj = JSON.parse(jsonstr.replace(/\binf\b/g, "null"));
+			
+		
+			
+			if ( jsonObj['RESPONSE'] ){
+				
+				// Neue Struktur Response
+				
+				switch (jsonObj['RESPONSE']) {
+				
+					case "ERRORS":
+						json_errorts(jsonstr);
+						break;
+					case "FLUSHBUFFER":
+						json_tree(jsonstr);
+						break;	
+					case "RTD":
+						json_beautifier(jsonstr);
+						break;				
+					case "AO":
+					case "AI":
+					case "DO":
+						json_tree(jsonstr);
+						break;	
+				}
+				
+			} else {
+				
+				// Alte Struktur Key
+				for (var key in jsonObj) {
+					
+					  switch (key) {
+					  
+					  case "STATUS":
+						  console.log ( key + " :" + jsonObj[key] );
+						  json_statusmsgs(jsonObj[key]);
+						  break;
+						  
+					  case "ERRORS":
+						  console.log ( key + " :" + jsonObj[key] );
+						  json_beautifier(jsonObj[key]);
+						  break;			  
+					  }
+					 
+			}
+			
+		 
+			}
+		}
+		function json_beautifier(jsonstr){
+			
+		//	console.log ("[TCP] jsonbeautifier |  Incoming : " + jsonstr);
+		//	var jsondata = JSON.parse(data.data.replace(/\binf\b/g, "null"));
+			var jsonObj = new Object();
+			jsonObj = JSON.parse(jsonstr.replace(/\binf\b/g, "null") );
+		
+			for (var key in jsonObj) {
+				if (typeof jsonObj[key] === 'object')
+					console.log ("key: " + key + " | Eleminate: " + jsonObj[key]["Eliminate"] + " | Vappr: " + jsonObj[key]["Vappr"] + " | Pos: " + jsonObj[key]["position"]  );
+				else 
+					console.log ( key + " :" + jsonObj[key] );
+			}
+		}
+		
+		function json_errorts(jsonstr){
+			var jsonObj = new Object();
+			jsonObj = JSON.parse(jsonstr);
+		
+			for (var key in jsonObj) {
+					console.log ( "TS: " + jsonObj[key] + " | " + key + " | " +  bit_text( parseInt(key) ));
+		//			console.log ( "TS: " + jsonObj[key] + " | " + key + " | " +  bit_text( parseInt(key) ));
+			}
+		}
+		
+		function json_keyoutput(jsonstr){
+			var jsonObj = new Object();
+			jsonObj = JSON.parse(jsonstr);
+		
+			for (var key in jsonObj) {
+					console.log ( "TS: " + jsonObj[key] + " | " + key + " | " +  bit_text( parseInt(key) ));
+		//			console.log ( "TS: " + jsonObj[key] + " | " + key + " | " +  bit_text( parseInt(key) ));
+			}
+		}
+
+		
+		function json_tree(jsonstring){
+			
+			console.log ("[TCP] tcptoflowmeter::TCP_Status |   Incoming: " + jsonstring );
+			
+			var jsonObj = new Object();
+			jsonObj = JSON.parse(jsonstring.replace(/\binf\b/g, "null"));
+			
+			
+			if ( jsonObj['RESPONSE'] ){ console.log ("-> RESPONSE: " + jsonObj['RESPONSE'] );}
+			for (var key in jsonObj) {
+		
+				if (key !=="RESPONSE") 
+					console.log ("- " + key  +  " : " + jsonObj[key] );
+			}
+		}
+			
 function getAllMeasurementsFromFlowmeter(){
 
 	var outData = [];
