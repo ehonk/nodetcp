@@ -34,10 +34,15 @@ function consolemenu(){
 	console.log("# 	");
 	console.log("# NET SOCKET getrennte Funktionen");
 	console.log("# 5. Open TCP ");
+	console.log("# 6. Communication ");
+	console.log("# 7. Close TCP ");
 	console.log("# 	");
-	console.log("# 6. connect TCP ");
-	console.log("# 7. Write & Read TCP ");
-	console.log("# 8. Close TCP ");
+	console.log("# 5. Open TCP ");
+	console.log("# 8. just connect TCP ");
+	console.log("# 9. just write TCP");
+	console.log("# 10. onlywrite");
+	console.log("# 11. onlyondata");
+	console.log("# 7. Close TCP ");
 	console.log("# 	");
 	console.log("# 9. combined functions");
 	console.log("# 21. Timer 1000ms ");
@@ -82,13 +87,33 @@ function keystrokehandler() {
 			break;
 	
 		case "6":
-			var tcpmessage = JSON.stringify({REQUEST: "DOTESTACTIVE?" , "CHANNEL": 5 });
-			sendTCP_JSON_Message(tcpmessage);
+			var tcpmessage = JSON.stringify({REQUEST: "STATUS"});
+			TCP_Communication(tcpmessage);
 			break;
 	
-		case "8":
+		case "7":
 			TCP_CloseSocket();
 			break;
+
+		case "8":
+			TCP_Connect();
+			break;
+
+		case "9":
+			var tcpmessage = JSON.stringify({REQUEST: "STATUS"});
+			TCP_write(tcpmessage);
+
+			break;
+
+			case "10":
+			var tcpmessage = JSON.stringify({REQUEST: "STATUS"});
+			TCP_onlywrite(tcpmessage);
+			break;
+
+			case "11":
+			TCP_onlyondata();
+			break;
+			
 
 			case "16":
 			var tcpmessage = JSON.stringify({REQUEST: "STATUS"});
@@ -102,6 +127,11 @@ function keystrokehandler() {
 
 			case "20":
 			console.log("getAllMeasurementsFromFlowmeter: " + chunk);
+
+			break;
+
+			case "0":
+			consolemenu();
 
 			break;
 	
@@ -165,10 +195,10 @@ function TCP_OpenSocket() {
 	
 	console.log("[INFO] TCP_OpenSocket::Start globalclient: " + globalclient);
 		
-		if (globalclient == undefined) {
+	//	if (globalclient == undefined) {
 			globalclient = new net.Socket();
 			console.log("[INFO] TCP_OpenSocket::new Socket globalclient: " + globalclient);
-		} else { console.log("[ERROR] Socket bereits erstellt"); }
+		//} else { console.log("[ERROR] Socket bereits erstellt"); }
 	}
 
 function TCP_CloseSocket() {
@@ -184,29 +214,33 @@ function TCP_CloseSocket() {
 }
 
 
-function TCP_Communication(strMsg) {
+function TCP_Communication(tcpmsg) {
 			
 		console.log(" TCP_Communication");
 		console.log(" TCP_Communication globalclient: " + globalclient);
 		
 		globalclient.connect(objTCPSocket.Port, objTCPSocket.Host, function () {
-			globalclient.write(strMsg);
-			console.log("< Info > [TCP] client_connect | Sending " + strMsg);
+			globalclient.write(tcpmsg);
+			console.log("< Info > [TCP] client_connect | Sending " + tcpmsg);
 		});
 			
 		globalclient.on('data', function (data) {
-			console.log("< Info > [TCP] client_connect | Receiving: " + data.toString());
+			var d = new Date();
+			var dd = d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + ":" + d.getMilliseconds();
+			console.log("< Info > [TCP] TS: " + dd + " | Receiving: " + data.toString());
 			globalclient.end();
 		});
 			
 		globalclient.on('error', function (error) {
-			console.log('Connection error: ' + error);
+			console.log('< ERROR > [TCP] Connection error: ' + error);
+			globalclient.destroy();
 		});
+
 }
 			
 			
 function TCP_Connect() {
-	console.log("TCP_Connect");
+	console.log("< Info >  TCP_Connect");
 		
 	globalclient.connect(objTCPSocket.Port, objTCPSocket.Host, function () {
 		console.log("< Info > [TCP] TCP_Connect::client_connect ");
@@ -221,20 +255,46 @@ function TCP_Connect() {
 function TCP_write(strMsg) {
 			
 //globalclient.emit('some event', { for: 'everyone' });
-			
+	globalclient.write(strMsg, function () {
+		console.log("< Info > [TCP] TCP_write::write | Sending: " + strMsg);
+
+	});
+
+	globalclient.on('data', function (data) {
+		var d = new Date();
+		var dd = d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + ":" + d.getMilliseconds();
+		console.log("< Info > [TCP] TS: " + dd + " | Receiving: " + data.toString());
+		//globalclient.destroy();
+		});
+
+/*
 	if (globalclient != undefined) {
 		console.log(" globalclient is defined: " + globalclient);
 		globalclient.write(strMsg, function () {
-		console.log("< Info > [TCP] TCP_write::write | Sending: " + strMsg);
-		globalclient.on('data', function (data) {
-		console.log("< Info > [TCP] TCP_write::on | Receiving: " + data.toString());
-	});
-	});
+			console.log("< Info > [TCP] TCP_write::write | Sending: " + strMsg);
+				globalclient.on('data', function (data) {
+				console.log("< Info > [TCP] TCP_write::on | Receiving: " + data.toString());
+				});
+		});
 	} else {
 		console.log(" globalclient is undefined: " + globalclient);
-	}
-	}
+	}*/
+}
 			
+function TCP_onlywrite(strMsg) {
+	globalclient.write(strMsg, function () {
+		console.log("< Info > [TCP] TCP_write::write | Sending: " + strMsg);
+
+	});
+}
+function TCP_onlyondata() {
+	globalclient.on('data', function (data) {
+		var d = new Date();
+		var dd = d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + ":" + d.getMilliseconds();
+		console.log("< Info > [TCP] TS: " + dd + " | Receiving: " + data.toString());
+		//globalclient.end();
+		});
+}
 
 
 function ____alte_Funktionen______(){}
