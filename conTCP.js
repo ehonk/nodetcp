@@ -38,11 +38,14 @@ function consolemenu(){
 	console.log("# 7. Close TCP ");
 	console.log("# 	");
 	console.log("# 5. Open TCP ");
-	console.log("# 8. just connect TCP ");
-	console.log("# 9. just write TCP");
-	console.log("# 10. onlywrite");
-	console.log("# 11. onlyondata");
+	console.log("# 8. connect TCP ");
+	console.log("# 9. start listener TCP ");
+	console.log("# 10. only write TCP ");
+	console.log("# 11. write and listen TCP");
+	console.log("# 12. Close Connection ");
 	console.log("# 7. Close TCP ");
+	console.log("# 	");
+	console.log("# 18. only write TCP Timer 1000ms ");
 	console.log("# 	");
 	console.log("# 9. combined functions");
 	console.log("# 21. Timer 1000ms ");
@@ -99,10 +102,8 @@ function keystrokehandler() {
 			TCP_Connect();
 			break;
 
-		case "9":
-			var tcpmessage = JSON.stringify({REQUEST: "STATUS"});
-			TCP_write(tcpmessage);
-
+			case "9":
+			TCP_Listener();
 			break;
 
 			case "10":
@@ -110,9 +111,17 @@ function keystrokehandler() {
 			TCP_onlywrite(tcpmessage);
 			break;
 
+
 			case "11":
-			TCP_onlyondata();
+			var tcpmessage = JSON.stringify({REQUEST: "STATUS"});
+			TCP_write(tcpmessage);
+
 			break;
+
+			case "12":
+			TCP_CloseConnection();
+			break;
+			
 			
 
 			case "16":
@@ -120,6 +129,11 @@ function keystrokehandler() {
 			setInterval(function(){ sendTCP_JSON_Message(tcpmessage) }, 1000);
 			break;
 			
+			case "18":
+			var tcpmessage = JSON.stringify({REQUEST: "STATUS"});
+			setInterval(function(){ TCP_onlywrite(tcpmessage) }, 1000);
+			break;
+
 			case "41":
 			var tcpmessage = JSON.stringify({REQUEST: "STATUS"});
 			setInterval(function(){ TCP_OneFunction(tcpmessage);(tcpmessage) }, 1000);
@@ -199,7 +213,36 @@ function TCP_OpenSocket() {
 			globalclient = new net.Socket();
 			console.log("[INFO] TCP_OpenSocket::new Socket globalclient: " + globalclient);
 		//} else { console.log("[ERROR] Socket bereits erstellt"); }
-	}
+}
+
+function TCP_Connect() {
+	console.log("< Info >  TCP_Connect");
+		
+	globalclient.connect(objTCPSocket.Port, objTCPSocket.Host, function () {
+		console.log("< Info > [TCP] TCP_Connect::client_connect ");
+	});
+			
+	globalclient.on('error', function (error) {
+		console.log("< Info > [TCP] TCP_Connect::Connection error: " + error);
+	});
+			
+}
+
+function TCP_Listener() {
+	globalclient.on('data', function (data) {
+		var d = new Date();
+		var dd = d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + ":" + d.getMilliseconds();
+		console.log("< Info > [TCP] TS: " + dd + " | Receiving: " + data.toString());
+		//globalclient.end();
+		});
+}
+
+function TCP_onlywrite(strMsg) {
+	globalclient.write(strMsg, function () {
+		console.log("< Info > [TCP] TCP_write::write | Sending: " + strMsg);
+
+	});
+}
 
 function TCP_CloseSocket() {
 
@@ -239,19 +282,17 @@ function TCP_Communication(tcpmsg) {
 }
 			
 			
-function TCP_Connect() {
-	console.log("< Info >  TCP_Connect");
+
+	
+function TCP_CloseConnection() {
+	console.log("< Info >  TCP_CloseConnection");
 		
-	globalclient.connect(objTCPSocket.Port, objTCPSocket.Host, function () {
-		console.log("< Info > [TCP] TCP_Connect::client_connect ");
-	});
-			
-	globalclient.on('error', function (error) {
-		console.log("< Info > [TCP] TCP_Connect::Connection error: " + error);
+	globalclient.on('data', function (data) {
+		globalclient.end();
 	});
 			
 }
-			
+
 function TCP_write(strMsg) {
 			
 //globalclient.emit('some event', { for: 'everyone' });
@@ -281,20 +322,7 @@ function TCP_write(strMsg) {
 	}*/
 }
 			
-function TCP_onlywrite(strMsg) {
-	globalclient.write(strMsg, function () {
-		console.log("< Info > [TCP] TCP_write::write | Sending: " + strMsg);
 
-	});
-}
-function TCP_onlyondata() {
-	globalclient.on('data', function (data) {
-		var d = new Date();
-		var dd = d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + ":" + d.getMilliseconds();
-		console.log("< Info > [TCP] TS: " + dd + " | Receiving: " + data.toString());
-		//globalclient.end();
-		});
-}
 
 
 function ____alte_Funktionen______(){}
