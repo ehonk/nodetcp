@@ -1,10 +1,3 @@
-//var jsonparams = require('./jsonParams');
-
-var paramsfile = __dirname + '/data/params.txt';
-var parameters = new Object();
-var measValues = [];
-
-
 var objTCPSocket = new Object();
 var TCPListner = require('socket.io').listen(20001,{'log colors':false, 'log level':1});
 var tcpclients = [];
