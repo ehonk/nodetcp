@@ -19,6 +19,9 @@ app.get('/', function (req, res) {       // This will load the single index.html
 });
 
 app.post('/json_request', apptcp.json_request);
+app.post('/TCP_OneFunction', apptcp.TCP_OneFunction);
+app.post('/TCP_FrameFunction', apptcp.TCP_FrameFunction);
+
 
 
 // listen (start app with node server.js) ======================================
