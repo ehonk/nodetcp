@@ -40,6 +40,7 @@ function consolemenu(){
 	console.log("# 20 Frame Funtion");
 	console.log("# 21 Frame Write");
 	console.log("# 22 Frame And End Write");
+	console.log("# 23. Timer 1000ms ");
 	console.log("# 	");
 	console.log("# 9. combined functions");
 	console.log("# 21. Timer 1000ms ");
@@ -142,7 +143,11 @@ function keystrokehandler() {
 			TCP_FrameWriteAndEnd(tcpmessage);
 			break;
 
-			
+			case "23":
+			var tcpmessage = JSON.stringify({REQUEST: "STATUS"});
+			setInterval(function(){ TCP_FrameWrite(tcpmessage); }, 1000);
+			break;
+
 			case "0":
 			consolemenu();
 
@@ -253,11 +258,13 @@ function TCP_FrameWrite(tcpmsg){
 
 	if (tcpcl == undefined) {
 		console.log (" tcpc1 is undefined");
+		/*
 		tcpcl = new net.Socket();
 		tcpcl.connect(objTCPSocket.Port, objTCPSocket.Host, function () {
 			//tcpcl.write(tcpmsg);
 			console.log("< Info > [TCP] client_connect | connect ");
-		});
+		});*/
+		TCP_FrameFunction();
 	}
 	else {
 		console.log (" tcpc1 is Defined"); 
@@ -272,12 +279,11 @@ function TCP_FrameWrite(tcpmsg){
 
 function TCP_FrameWriteAndEnd(tcpmsg){
 		
-		
-				tcpcl.write(tcpmsg, function () {
-					console.log("< Info >  TCP_StreamListener TCP_StreamWrite: " + activelistener );
-					console.log("< Info > [TCP] TCP_FrameWrite::write | Sending: " + tcpmsg);
-			tcpcl.end();
-				});
+	tcpcl.write(tcpmsg, function () {
+		console.log("< Info >  TCP_StreamListener TCP_StreamWrite: " + activelistener );
+		console.log("< Info > [TCP] TCP_FrameWrite::write | Sending: " + tcpmsg);
+		tcpcl.end();
+	});
 }
 
 function TCP_OpenSocket() {
