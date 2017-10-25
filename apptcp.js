@@ -1,5 +1,5 @@
 var objTCPSocket = new Object();
-var TCPListner = require('socket.io').listen(20001,{'log colors':false, 'log level':1});
+//var TCPListner = require('socket.io').listen(20001,{'log colors':false, 'log level':1});
 var tcpclients = [];
 var sockets = [];
 var net = require('net');
@@ -8,6 +8,8 @@ objTCPSocket.Port="20000";
 var globalclient = undefined;
 var tcpcl;
 var activelistener=0;
+var countlistener=0;
+var lastlistener=0;
 
 console.log('< INFO > apptcp.js loaded ');
 
@@ -16,15 +18,12 @@ function json_request(req,res) {
     console.log('< INFO >  json_request ');
 
     var vRequest = req.body.REQUEST;
-
     var d = new Date();
     var dd = d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + ":" + d.getMilliseconds();
-
 
     console.log('< INFO >  json_request vRequest: ' + vRequest );
     res.contentType('json');
     res.send({ data: "Hello from node|" + dd });
-
 }
 
 
@@ -37,12 +36,11 @@ function TCP_FrameFunction(req,res){
 		 * 4. on close and close
 		 * 
 		 */
-		
-	
+			
 		if (tcpcl == undefined) {
 			tcpcl = new net.Socket();
 			console.log("< Info > [TCP] TCP_OpenSocket::new Socket erstellt: " + tcpcl);
-			//console.log(" < Info >  object: " +  Object.getOwnPropertyNames(tcpcl)); 
+
 		} else { console.log("[ERROR] Socket bereits erstellt"); }
 	
 		tcpcl.connect(objTCPSocket.Port, objTCPSocket.Host, function () {
@@ -51,16 +49,19 @@ function TCP_FrameFunction(req,res){
 			res.contentType('json');
 			res.send({ data: "[TCP] client_connect" });
 		});
-			
+		
+		/*
 		tcpcl.on('data', function (data) {
 
 			var d = new Date();
 			var dd = d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + ":" + d.getMilliseconds();
 			console.log("< Info > [TCP] TS: " + dd + " | Receiving: " + data.toString());
 
-
+			// Listener hochschicken
+			res.contentType('json');
+			res.send({ data: data.toString() });
 			//tcpcl.end();
-		});
+		});*/
 			
 		tcpcl.on('error', function (error) {
 			console.log('< ERROR > [TCP] Connection error: ' + error);
@@ -68,8 +69,7 @@ function TCP_FrameFunction(req,res){
 			res.send({ data: error.toString() });			
 			tcpcl.destroy();
 		});
-	
-		
+			
 		tcpcl.on('close', function () {
 			console.log("< Info > [TCP] TCP_CloseSocket::on_close ");
 			console.log("< Info > [TCP] ------------------------- ");
@@ -81,8 +81,18 @@ function TCP_FrameFunction(req,res){
 	}
 
 function TCP_FrameWrite(req,res){
-		
-			if (tcpcl == undefined) {
+
+			var vRequest = req.body.JSONMSG;
+			console.log("< Info > [TCP] TCP_FrameWrite: vRequest " + vRequest);
+
+			if (tcpcl !== undefined) {
+				tcpcl.write(vRequest, function () {
+					countlistener=0;
+					//console.log("< Info >  TCP_StreamListener TCP_StreamWrite: " + activelistener );
+					console.log("< Info > [TCP] TCP_FrameWrite::write | Sending: " + vRequest);
+				});
+			}
+			else {
 				console.log (" tcpc1 is undefined");
 				/*
 				tcpcl = new net.Socket();
@@ -92,22 +102,28 @@ function TCP_FrameWrite(req,res){
 				});*/
 				TCP_FrameFunction();
 			}
-			else {
-				console.log (" tcpc1 is Defined"); 
-		
-				tcpcl.write(tcpmsg, function () {
-					console.log("< Info >  TCP_StreamListener TCP_StreamWrite: " + activelistener );
-					console.log("< Info > [TCP] TCP_FrameWrite::write | Sending: " + tcpmsg);
+
+			// Listener
 			
+			tcpcl.on('data', function (data) {
+			// Listener hochschicken
+				if (countlistener==0) {
+					res.contentType('json');
+					res.send({ data: data.toString() });
+					var d = new Date();
+					var dd = d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + ":" + d.getMilliseconds();
+					console.log("< Info > [TCP] TS: " + dd + " | Receiving: " + data.toString());
+					console.log("< Info > [TCP] TCP_FrameWrite: countlistener " + countlistener );
+				} else console.log("< Info > [TCP] TCP_FrameWrite: NO SEND countlistener " + countlistener );
+					countlistener++;
+					//tcpcl.end();
 				});
-			}
-		}
+}
 
 function TCP_FrameWriteAndEnd(tcpmsg){
-		
-		
-				tcpcl.write(tcpmsg, function () {
-					console.log("< Info >  TCP_StreamListener TCP_StreamWrite: " + activelistener );
+			
+	tcpcl.write(tcpmsg, function () {
+		console.log("< Info >  TCP_StreamListener TCP_StreamWrite: " + activelistener );
 					console.log("< Info > [TCP] TCP_FrameWrite::write | Sending: " + tcpmsg);
 			tcpcl.end();
 				});
@@ -124,11 +140,13 @@ function TCP_OneFunction(req,res){
 		 * 
 		 */
 		
-		var vRequest = req.body.REQUEST;
-	
+		var vRequest = req.body.JSONMSG;
+
+		console.log("< Info > [TCP] TCP_OneFunction: vRequest " + vRequest);
+
 		if (tcpcl == undefined) {
 			tcpcl = new net.Socket();
-			console.log("< Info > [TCP] TCP_OpenSocket::new Socket erstellt: " + tcpcl);
+			console.log("< Info > [TCP] TCP_OpenSocket::new Socket erstellt: " + vRequest);
 			//console.log(" < Info >  object: " +  Object.getOwnPropertyNames(tcpcl)); 
 		} else { console.log("[ERROR] Socket bereits erstellt"); }
 	
@@ -141,7 +159,6 @@ function TCP_OneFunction(req,res){
 			var d = new Date();
 			var dd = d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + ":" + d.getMilliseconds();
 			console.log("< Info > [TCP] TS: " + dd + " | Receiving: " + data.toString());
-
 			
 			res.contentType('json');
 			res.send({ data: data.toString() });
