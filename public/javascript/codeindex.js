@@ -1,12 +1,25 @@
 var ajaxtimer='';
 
+
 function Index_Load() {
     //console.info ("## JQuery Core: " + $.fn.jquery + " JQuery UI " + $.ui.version);
     console.info("## Index_Load");
     
     $("#btajaxone").click(function(){
         ajonefunction();
-        });
+    });
+
+    $("#onetimer").click(function(){
+       ajaxtimer=setInterval(function(){ ajonefunction()}, 250);
+    });
+
+    $("#btaxstart").click(function(){
+        ajstarttcp();
+    });
+
+    $("#btonewrite").click(function(){
+        ajtcpwrite();
+    });
 
     $("#btaxtimer").click(function(){
         starttimer();
@@ -16,22 +29,20 @@ function Index_Load() {
         window.clearInterval(ajaxtimer);
     });
 
-    $("#btaxstart").click(function(){
-        ajstarttcp();
-    });
-    
+    $("#axinput2").val("---");
+    $("#axinput1").val("---");
 }
 
 
 function starttimer() {
     console.info("# [INFO] codeindex::starttimer ");
-    ajaxtimer=setInterval(function(){ ajaxcall()}, 5000);
+    ajaxtimer=setInterval(function(){ ajtcpwrite()}, 5000);
 
 }
 
 function ajstarttcp(){
     
-        console.info("# [INFO] codeindex::ajaxcall ");
+        console.info("# [INFO] codeindex::ajstarttcp ");
         
             var strData = JSON.stringify({REQUEST: "STATUS"});
         
@@ -48,7 +59,7 @@ function ajstarttcp(){
                     },
                     success: function(data)
                     {
-                        $("#axinput1").val( data.data );
+                        $("#axinput2").val( data.data );
                         //(typeof data.value == 'number') ? $("#axinput1").text( data.data ) :  $("#axinput1").text( "---" );
     
                     },
@@ -60,29 +71,28 @@ function ajstarttcp(){
     }
 
 
-function ajaxcall(){
+function ajtcpwrite(){
 
-    console.info("# [INFO] codeindex::ajaxcall ");
+    console.info("# [INFO] codeindex::ajtcpwrite ");
     
-        var strData = JSON.stringify({REQUEST: "STATUS"});
+    var jsonstring = JSON.stringify({REQUEST: "STATUS"});
     
             $.ajax({
                 url: "/TCP_FrameWrite",
                // url: "/json_request",
                 type: "POST",
                 dataType: "json",
-                data: strData,
+                data: JSON.stringify({JSONMSG: jsonstring}) ,
                 contentType: "application/json",
                 cache: false,
-                timeout: 10000,
+                timeout: 2000,
                 complete: function()
                 {
                 },
                 success: function(data)
                 {
-                    $("#axinput1").val( data.data );
+                    $("#axinput2").val( data.data );
                     //(typeof data.value == 'number') ? $("#axinput1").text( data.data ) :  $("#axinput1").text( "---" );
-
                 },
                 error: function(jqXHR, textStatus, err)
                 {
@@ -95,13 +105,14 @@ function ajonefunction(){
     
         console.info("# [INFO] codeindex::ajonefunction ");
         
-            var strData = JSON.stringify({REQUEST: "STATUS"});
-        
+            var jsonstring = JSON.stringify({REQUEST: "STATUS"});
+
                 $.ajax({
                     url: "/TCP_OneFunction",
                     type: "POST",
                     dataType: "json",
-                    data: strData,
+                    //data: strData,
+                    data: JSON.stringify({JSONMSG: jsonstring}) ,
                     contentType: "application/json",
                     cache: false,
                     timeout: 10000,
@@ -110,7 +121,10 @@ function ajonefunction(){
                     },
                     success: function(data)
                     {
-                        $("#axinput2").val( data.data );
+                        var d = new Date();
+                        var dd = d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + ":" + d.getMilliseconds();
+
+                        $("#axinput1").val( data.data + " | " + dd );
                         //(typeof data.value == 'number') ? $("#axinput1").text( data.data ) :  $("#axinput1").text( "---" );
     
                     },

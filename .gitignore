@@ -1,4 +1,4 @@
-
+node_modules/
 node_modules/json-socket/.npmignore
 node_modules/json-socket/.travis.yml
 node_modules/json-socket/examples/tcp-example.js
@@ -7,3 +7,4 @@ node_modules/json-socket/lib/json-socket.js
 node_modules/json-socket/LICENSE
 node_modules/json-socket/package.json
 node_modules/json-socket/README.md
+_node_modules/accepts/HISTORY.md

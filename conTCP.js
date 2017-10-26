@@ -1,5 +1,5 @@
 var objTCPSocket = new Object();
-var TCPListner = require('socket.io').listen(20001,{'log colors':false, 'log level':1});
+//var TCPListner = require('socket.io').listen(20001,{'log colors':false, 'log level':1});
 var tcpclients = [];
 var sockets = [];
 var net = require('net');
@@ -576,27 +576,22 @@ function TCP_RequestValue(req, res){
 	var strData = req.body.strData;
 	var NowDate = new Date();
 	var outData = [];
-
 	strMsg = '';
 	if(measValues.length > 1){
 		client = new net.Socket();
 		currID = 1;
-
 		client.setTimeout(60000, function(){
 			res.contentType('json');
 			//res.send({ data: "TimeOUTTTT: " + objTCPSocket.Host + ":"+ objTCPSocket.Port, unitDisplay: JSON.stringify(dataUnitDisplay), measurementUnits: JSON.stringify(dataMeasurementUnits)   });
 			res.send({ data: "TimeOut: " + objTCPSocket.Host + ":"+ objTCPSocket.Port});
 			client.destroy();
 		});
-
 		client.connect(objTCPSocket.Port, objTCPSocket.Host, function(){
 			client.write('{"REQUEST":"'+ measValues[currID] + '"}');
 			console.log ("< Info > [TCP] client_connect TCP_RequestValue " + measValues[currID]);
 		});
-
 		client.on('data', function(data) {
 			outData.push(servercode.createMeasValueObj( JSON.parse(data)  ));
-
 			currID++;
 			if(currID < measValues.length){
 				client.write('{"REQUEST":"'+ measValues[currID] + '"}');
@@ -608,11 +603,9 @@ function TCP_RequestValue(req, res){
 				client.destroy();
 			}
 		});
-
 		client.on('close', function() {
 			//console.log('Connection closed');
 		});
-
 		client.on('error', function(error) {
 			res.contentType('json');
 			res.send({ data: JSON.stringify(error)});
@@ -628,6 +621,3 @@ function TCP_RequestValue(req, res){
 function TCP_IntelliWrite(strmsg) {
 	
 }
-
-
-
