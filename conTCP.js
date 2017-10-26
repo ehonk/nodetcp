@@ -34,6 +34,7 @@ function consolemenu(){
 	console.log("# 9. Send Single Message and Listen TCP");
 	console.log("# 10. Close Connection ");
 	console.log("# 11. Close TCP ");
+	console.log("# 12. Remove Listener ");
 	console.log("# 	");
 	console.log("# 18. only write TCP Timer 1000ms ");
 	console.log("# 	");
@@ -111,6 +112,10 @@ function keystrokehandler() {
 		
 			case "11":
 			TCP_CloseSocket();
+			break;
+
+			case "12":
+			TCP_RemoveListener();
 			break;
 
 			case "16":
@@ -418,7 +423,16 @@ function TCP_SingleMsgAndListen(strMsg) {
 	}*/
 }
 			
-
+function TCP_RemoveListener(){
+	
+		//console.log("Events: " + EventEmitter.listenerCount(globalclient, 'on'));
+		console.log("< Info >  TCP_RemoveListener");
+	
+		globalclient.removeListener('on', function () { 
+			console.log("< Info >  removeListener"); 
+		});
+	
+	}
 
 
 function ____alte_Funktionen______(){}
