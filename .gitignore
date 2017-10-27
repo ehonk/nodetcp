@@ -1,4 +1,5 @@
 node_modules/
+node_modules/*
 node_modules/json-socket/.npmignore
 node_modules/json-socket/.travis.yml
 node_modules/json-socket/examples/tcp-example.js
@@ -8,3 +9,13 @@ node_modules/json-socket/LICENSE
 node_modules/json-socket/package.json
 node_modules/json-socket/README.md
 _node_modules/accepts/HISTORY.md
+node_modules/accepts/HISTORY.md
+node_modules/after/.npmignore
+node_modules/after/.travis.yml
+node_modules/after/index.js
+node_modules/accepts/*
+node_modules/accepts/
+node_modules
+node_modules/accepts/index.js
+node_modules/after/.npmignore
+node_modules/after/LICENCE
