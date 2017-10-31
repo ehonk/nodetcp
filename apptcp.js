@@ -105,7 +105,7 @@ function TCP_FrameWrite(req,res){
 
 			// Listener
 			
-			tcpcl.on('data', function (data) {
+			tcpcl.once('data', function (data) {
 			// Listener hochschicken
 				if (countlistener==0) {
 					res.contentType('json');
