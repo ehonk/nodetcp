@@ -323,7 +323,7 @@ function TCP_StreamListener() {
 
 	activelistener++;
 
-	globalclient.on('data', function (data) {
+	globalclient.once('data', function (data) {
 
 		console.log("< Info >  TCP_StreamListener activelistener: " + activelistener );
 		var d = new Date();
@@ -428,7 +428,7 @@ function TCP_RemoveListener(){
 		//console.log("Events: " + EventEmitter.listenerCount(globalclient, 'on'));
 		console.log("< Info >  TCP_RemoveListener");
 	
-		globalclient.removeListener('on', function () { 
+		globalclient.removeListener('data', function () { 
 			console.log("< Info >  removeListener"); 
 		});
 	
