@@ -7,4 +7,5 @@ node_modules/json-socket/lib/json-socket.js
 node_modules/json-socket/LICENSE
 node_modules/json-socket/package.json
 node_modules/json-socket/README.md
+out/
 _node_modules/accepts/HISTORY.md

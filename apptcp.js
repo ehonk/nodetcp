@@ -26,7 +26,8 @@ function json_request(req,res) {
     res.send({ data: "Hello from node|" + dd });
 }
 
-
+/** @description Determines the Frame for TCP Communication
+ */
 function TCP_FrameFunction(req,res){
 	
 		/**
@@ -80,6 +81,11 @@ function TCP_FrameFunction(req,res){
 		
 	}
 
+/** @description Determines the Write and Listen Function for TCP Communication
+ * @author Andreas
+ * @param {number} radius The radius of the circle.  
+ * @return {number}  
+ */
 function TCP_FrameWrite(req,res){
 
 			var vRequest = req.body.JSONMSG;
