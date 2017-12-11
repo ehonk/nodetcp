@@ -27,6 +27,75 @@ function json_request(req,res) {
 }
 
 
+// Neue Funktionen
+// Monday hier weitermachen: Funktionen vervollständingen
+
+
+/**
+ * erwartet einen JSON String, gibt json string zurück
+ * Kompletter Ablauf mit Connect, write listen and closed
+ */
+function tcp_wa_jsonstring(req,res) {
+
+	/**
+	 * 1. new net socket
+	 * 2. connect and write
+	 * 3. on data and read
+	 * 4. on close and close
+	 * console.log(Object.keys(tcpcl));
+	 */
+
+	var vRequest = req.body.JSONMSG;
+	console.log("< Info > [TCP] tcp_wa_jsonstring: vRequest " + vRequest);
+
+	
+	if (globalclient == undefined) {
+		globalclient = new net.Socket();
+		console.log("< Info > [TCP] TCP_OpenSocket::new Socket erstellt: " + globalclient);
+		//console.log(" < Info >  object: " +  Object.getOwnPropertyNames(tcpcl)); 
+	} else { console.log("[ERROR] Socket bereits erstellt"); }
+
+
+	globalclient.connect(objTCPSocket.Port, objTCPSocket.Host, function () {
+		globalclient.write(vRequest);
+		console.log("< Info > [TCP] connect | Sending " + vRequest);
+	});
+		
+	globalclient.on('data', function (data) {
+		var d = new Date();
+		var dd = d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + ":" + d.getMilliseconds();
+		console.log("< Info > [TCP] TS: " + dd + " | Receiving: " + data.toString());
+		globalclient.end();
+	});
+		
+	globalclient.on('error', function (error) {
+		console.log('< ERROR > [TCP] Connection error: ' + error);
+		globalclient.destroy();
+	});
+	
+	globalclient.on('close', function () {
+		console.log("< Info > [TCP] on_close ");
+		console.log("< Info > [TCP] ------------------------- ");
+		globalclient.destroy();
+		globalclient = undefined;
+	});
+}
+
+
+function tcp_frame_start() {}
+function tcp_frame_once() {}
+function tcp_frame_close() {}
+
+
+function tcp_na_jsonstring() {}
+function tcp_wa_jsonrequest() {}
+function tcp_na_msg() {}
+function tcp_wa_msg() {}
+function tcp_completeValueObject() {}
+function tcp_valuemap() {}
+
+/** @description Determines the Frame for TCP Communication
+ */
 function TCP_FrameFunction(req,res){
 	
 		/**
@@ -80,6 +149,11 @@ function TCP_FrameFunction(req,res){
 		
 	}
 
+/** @description Determines the Write and Listen Function for TCP Communication
+ * @author Andreas
+ * @param {number} radius The radius of the circle.  
+ * @return {number}  
+ */
 function TCP_FrameWrite(req,res){
 
 			var vRequest = req.body.JSONMSG;
